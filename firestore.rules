@@ -7,21 +7,31 @@ service cloud.firestore {
         && request.auth.token.email_verified == true
         && request.auth.token.email.lower() == 'mrnobodyspreownedmarketplace@gmail.com';
     }
+    function validImage(image, maxSize) {
+      return image is string && image.size() <= maxSize
+        && image.matches('data:image/jpeg;base64,[A-Za-z0-9+/=]+');
+    }
+    function validExtraImages(images) {
+      return images is list && images.size() <= 2
+        && (images.size() < 1 || validImage(images[0], 250000))
+        && (images.size() < 2 || validImage(images[1], 250000));
+    }
     function validProduct(p) {
       let fields = ['name','description','image','price','category','condition','created'];
-      return p.keys().hasOnly(fields) && p.keys().hasAll(fields)
+      return p.keys().hasOnly(fields.concat(['extraImages'])) && p.keys().hasAll(fields)
         && p.name is string && p.name.size() > 0 && p.name.size() <= 70
         && p.description is string && p.description.size() > 0 && p.description.size() <= 280
         && p.price is int && p.price > 0 && p.price <= 10000000
         && p.category in ['電玩遊戲','運動用品','3C 配件','生活選物']
         && p.condition in ['全新未使用','近全新','良好','有使用痕跡']
-        && p.image is string && p.image.size() <= 350000
-        && p.image.matches('data:image/jpeg;base64,[A-Za-z0-9+/=]+')
+        && validImage(p.image, 350000)
+        && validExtraImages(p.get('extraImages', []))
         && p.created == request.time;
     }
     match /products/{id} {
       allow read: if true;
       allow create: if isSeller() && validProduct(request.resource.data);
+      allow delete: if isSeller();
     }
   }
 }

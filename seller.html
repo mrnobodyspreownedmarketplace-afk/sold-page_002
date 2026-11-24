@@ -20,5 +20,10 @@
     <label>商品分類<select name="category"><option>電玩遊戲</option><option>運動用品</option><option>3C 配件</option><option>生活選物</option></select></label>
     <label>商品狀況<select name="condition"><option>全新未使用</option><option>近全新</option><option>良好</option><option>有使用痕跡</option></select></label>
     <label>商品描述<textarea name="description" required maxlength="280" rows="5"></textarea></label>
-    <label>商品照片（JPG、PNG、WebP，最多 5 MB）<input name="photo" type="file" accept="image/jpeg,image/png,image/webp" required></label>
-    <button class="cta">上架商品</button></form></main><script src="./seller.js" type="module"></script></body></html>
+    <label>商品照片（最多 3 張，每張最多 5 MB；第一張為封面）<input name="photo" type="file" accept="image/jpeg,image/png,image/webp" multiple required></label>
+    <button class="cta">上架商品</button></form>
+<section id="manage" hidden style="margin-top:32px">
+  <h2>已上架商品</h2>
+  <p id="manage-status" role="status"></p>
+  <ul id="manage-list" style="display:grid;gap:12px;padding-left:20px"></ul>
+</section></main><script src="./seller.js" type="module"></script></body></html>

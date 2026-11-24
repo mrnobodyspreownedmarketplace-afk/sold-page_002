@@ -11,7 +11,26 @@ let items = [];
 let category = tabs[0].textContent;
 let loaded = false;
 function showProduct(product){
-  byId('photo').src = product.image;
+  const photos = [product.image, ...(product.extraImages ?? [])];
+  const gallery = byId('gallery');
+  gallery.replaceChildren();
+  gallery.hidden = photos.length < 2;
+  byId('photo').src = photos[0];
+  if (photos.length > 1) {
+    photos.forEach((url,index) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = '照片 ' + (index + 1);
+      button.setAttribute('aria-pressed',String(index === 0));
+      button.addEventListener('click',() => {
+        byId('photo').src = url;
+        for (const item of gallery.children) {
+          item.setAttribute('aria-pressed',String(item === button));
+        }
+      });
+      gallery.append(button);
+    });
+  }
   byId('photo').alt = product.name;
   byId('name').textContent = product.name;
   byId('price').textContent = currency(product.price);

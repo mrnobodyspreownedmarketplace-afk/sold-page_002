@@ -13,11 +13,15 @@ async function database(){
 export async function listProducts(){
   const {sdk,db} = await database();
   const snapshot = await sdk.getDocs(sdk.collection(db,'products'));
-  return snapshot.docs.map(record => record.data());
+  return snapshot.docs.map(record => ({...record.data(),id:record.id}));
 }
 export async function createProduct(product){
   const {sdk,db} = await database();
   await sdk.addDoc(sdk.collection(db,'products'),{...product,created:sdk.serverTimestamp()});
+}
+export async function deleteProduct(id){
+  const {sdk,db} = await database();
+  await sdk.deleteDoc(sdk.doc(db,'products',id));
 }
 export async function authentication(){
   const [instance,sdk] = await Promise.all([app(),import(cdn+'firebase-auth.js')]);
