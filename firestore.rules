@@ -1,0 +1,27 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSeller() {
+      return request.auth != null
+        && request.auth.token.firebase.sign_in_provider == 'google.com'
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.lower() == 'mrnobodyspreownedmarketplace@gmail.com';
+    }
+    function validProduct(p) {
+      let fields = ['name','description','image','price','category','condition','created'];
+      return p.keys().hasOnly(fields) && p.keys().hasAll(fields)
+        && p.name is string && p.name.size() > 0 && p.name.size() <= 70
+        && p.description is string && p.description.size() > 0 && p.description.size() <= 280
+        && p.price is int && p.price > 0 && p.price <= 10000000
+        && p.category in ['電玩遊戲','運動用品','3C 配件','生活選物']
+        && p.condition in ['全新未使用','近全新','良好','有使用痕跡']
+        && p.image is string && p.image.size() <= 350000
+        && p.image.matches('data:image/jpeg;base64,[A-Za-z0-9+/=]+')
+        && p.created == request.time;
+    }
+    match /products/{id} {
+      allow read: if true;
+      allow create: if isSeller() && validProduct(request.resource.data);
+    }
+  }
+}
